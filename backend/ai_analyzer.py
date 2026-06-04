@@ -68,8 +68,8 @@ def analyze_code_with_gemini(code: str, language: str, api_key: str) -> dict:
 
 def extract_value(text: str, key: str) -> str:
     """Extract value from unstructured text"""
-    # Fixed: Separated raw string from f-string to avoid syntax error
-    pattern = r'["\']?\s*[:=]\s*["\']?([^"\'}\n]+)'
-    pattern = key + pattern
+    # Escape special regex characters in key and build pattern safely
+    escaped_key = re.escape(key)
+    pattern = escaped_key + r'["\']?\s*[:=]\s*["\']?([^"\'}\n]+)'
     match = re.search(pattern, text, re.IGNORECASE)
     return match.group(1).strip() if match else ''
