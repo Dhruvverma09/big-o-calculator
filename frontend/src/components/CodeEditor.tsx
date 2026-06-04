@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-javascript';
 
 interface AnalysisResult {
   time_complexity: string;
@@ -18,53 +15,70 @@ export default function CodeEditor() {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
 
   const handleAnalyze = async () => {
+    console.log('🔴 BUTTON CLICKED - Starting analysis...');
     setLoading(true);
     setErrorMsg('');
+    setDebugInfo('📤 Sending request to backend...');
+    setAnalysis(null);
     
     if (!code.trim()) {
-      setErrorMsg('Please enter some code to analyze');
+      const msg = 'Please enter some code to analyze';
+      setErrorMsg(msg);
+      setDebugInfo('');
       setLoading(false);
       return;
     }
 
     try {
-      console.log('Sending request to backend...');
-      console.log('Code:', code);
-      console.log('Language:', language);
+      const requestData = { code, language };
+      console.log('📤 Request payload:', requestData);
+      setDebugInfo('📤 Sending POST to http://127.0.0.1:5000/api/analyze...');
       
-      const response = await axios.post('http://127.0.0.1:5000/api/analyze', {
-        code,
-        language
-      }, {
-        timeout: 30000,
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        'http://127.0.0.1:5000/api/analyze',
+        requestData,
+        {
+          timeout: 30000,
+          headers: { 'Content-Type': 'application/json' }
         }
-      });
+      );
       
-      console.log('Response received:', response.data);
+      console.log('✅ Response received:', response.data);
+      setDebugInfo('✅ Response received from backend!');
       setAnalysis(response.data);
       
       // Dispatch custom event for chart update
       window.dispatchEvent(new CustomEvent('analysisComplete', { detail: response.data }));
     } catch (error: any) {
-      console.error('Analysis failed:', error);
+      console.error('❌ ERROR:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      
+      let errorMessage = '';
       
       if (error.code === 'ECONNABORTED') {
-        setErrorMsg('Request timeout - Backend took too long to respond');
-      } else if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-        setErrorMsg('Network error - Is the backend running on http://127.0.0.1:5000?');
+        errorMessage = '⏱️ Request timeout - Backend took too long';
+      } else if (error.code === 'ERR_NETWORK' || !error.response) {
+        errorMessage = '🌐 Cannot connect to backend at http://127.0.0.1:5000 - Is it running?';
+      } else if (error.response?.status === 500) {
+        errorMessage = `🔥 Backend error: ${error.response.data?.error || 'Internal Server Error'}`;
+      } else if (error.response?.status === 400) {
+        errorMessage = `❌ Bad request: ${error.response.data?.error || 'Invalid code'}`;
       } else if (error.response) {
-        setErrorMsg(`Backend error: ${error.response.status} - ${error.response.data?.error || error.response.statusText}`);
-      } else if (error.request) {
-        setErrorMsg('No response from backend - Check if it\'s running');
+        errorMessage = `${error.response.status}: ${error.response.data?.error || error.response.statusText}`;
       } else {
-        setErrorMsg(`Error: ${error.message}`);
+        errorMessage = `${error.message}`;
       }
       
-      console.error('Full error:', error);
+      setErrorMsg(errorMessage);
+      setDebugInfo(`❌ Error: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -100,18 +114,31 @@ export default function CodeEditor() {
         disabled={loading}
         className="analyze-btn"
       >
-        {loading ? 'Analyzing...' : 'Analyze Complexity'}
+        {loading ? '⏳ Analyzing...' : '🚀 Analyze Complexity'}
       </button>
+
+      {debugInfo && (
+        <div className={`debug-info ${loading ? 'loading' : ''}`}>
+          {debugInfo}
+        </div>
+      )}
 
       {errorMsg && (
         <div className="error-message">
-          <strong>⚠️ Error:</strong> {errorMsg}
+          {errorMsg}
         </div>
       )}
 
       {analysis && (
         <div className="quick-result">
+          <div className="result-label">⚡ Time Complexity:</div>
           <span className="complexity-badge">{analysis.time_complexity}</span>
+          {analysis.explanation && (
+            <div className="explanation">{analysis.explanation}</div>
+          )}
+          {analysis.optimization_tips && (
+            <div className="tips">💡 {analysis.optimization_tips}</div>
+          )}
         </div>
       )}
 
@@ -170,6 +197,7 @@ export default function CodeEditor() {
           font-weight: bold;
           cursor: pointer;
           transition: all 0.3s ease;
+          font-size: 1rem;
         }
 
         .analyze-btn:hover:not(:disabled) {
@@ -182,6 +210,25 @@ export default function CodeEditor() {
           cursor: not-allowed;
         }
 
+        .debug-info {
+          padding: 0.75rem 1rem;
+          background: #1a4d6d;
+          border-left: 4px solid #00d4ff;
+          border-radius: 4px;
+          color: #00d4ff;
+          font-size: 0.9rem;
+          font-family: monospace;
+        }
+
+        .debug-info.loading {
+          animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
+        }
+
         .error-message {
           padding: 1rem;
           background: #6b3030;
@@ -189,22 +236,54 @@ export default function CodeEditor() {
           border-radius: 6px;
           color: #ffcccc;
           font-size: 0.9rem;
+          line-height: 1.5;
         }
 
         .quick-result {
-          padding: 1rem;
+          padding: 1.5rem;
           background: #16213e;
-          border-radius: 6px;
-          border-left: 4px solid #00d4ff;
+          border-radius: 8px;
+          border: 2px solid #00d4ff;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .result-label {
+          color: #00d4ff;
+          font-weight: bold;
+          font-size: 0.9rem;
+          text-transform: uppercase;
         }
 
         .complexity-badge {
-          background: #00d4ff;
+          display: inline-block;
+          background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
           color: #000;
-          padding: 0.25rem 0.75rem;
-          border-radius: 4px;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
           font-weight: bold;
           font-family: monospace;
+          font-size: 1.2rem;
+          width: fit-content;
+        }
+
+        .explanation {
+          color: #ddd;
+          font-size: 0.9rem;
+          line-height: 1.6;
+          padding: 0.75rem;
+          background: #0f3460;
+          border-radius: 4px;
+        }
+
+        .tips {
+          color: #ffdd00;
+          font-size: 0.9rem;
+          line-height: 1.6;
+          padding: 0.75rem;
+          background: #3d3000;
+          border-radius: 4px;
         }
       `}</style>
     </div>
