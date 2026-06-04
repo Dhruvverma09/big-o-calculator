@@ -1,0 +1,219 @@
+---
+---
+
+<section class="educational-guide">
+  <h2>Understanding Big-O Notation</h2>
+  
+  <article>
+    <h3>What is Big-O Notation?</h3>
+    <p>Big-O notation is a mathematical notation used in computer science to describe the performance of an algorithm. Specifically, it measures how the runtime or space requirements of an algorithm grow as the input size increases. Understanding Big-O helps developers write more efficient code and make better architectural decisions.</p>
+    
+    <p>The "O" stands for "Order of" and the notation describes the worst-case scenario for an algorithm's performance. For example, O(n²) means that in the worst case, the number of operations is proportional to the square of the input size.</p>
+
+    <h3>Why Does Big-O Matter?</h3>
+    <ul>
+      <li><strong>Performance Prediction:</strong> Understand how your code will perform with large datasets</li>
+      <li><strong>Algorithm Comparison:</strong> Make informed decisions when choosing between different approaches</li>
+      <li><strong>Scalability:</strong> Identify bottlenecks before they become critical issues</li>
+      <li><strong>Interview Preparation:</strong> Essential knowledge for technical interviews</li>
+    </ul>
+
+    <h3>Common Complexity Classes</h3>
+    <table class="complexity-table">
+      <thead>
+        <tr>
+          <th>Notation</th>
+          <th>Name</th>
+          <th>Example</th>
+          <th>n=10</th>
+          <th>n=100</th>
+          <th>n=1000</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>O(1)</td>
+          <td>Constant</td>
+          <td>Array access by index</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        <tr>
+          <td>O(log n)</td>
+          <td>Logarithmic</td>
+          <td>Binary search</td>
+          <td>~3</td>
+          <td>~7</td>
+          <td>~10</td>
+        </tr>
+        <tr>
+          <td>O(n)</td>
+          <td>Linear</td>
+          <td>Simple loop</td>
+          <td>10</td>
+          <td>100</td>
+          <td>1,000</td>
+        </tr>
+        <tr>
+          <td>O(n log n)</td>
+          <td>Linearithmic</td>
+          <td>Merge sort, Quick sort</td>
+          <td>~33</td>
+          <td>~664</td>
+          <td>~9,966</td>
+        </tr>
+        <tr>
+          <td>O(n²)</td>
+          <td>Quadratic</td>
+          <td>Bubble sort, Nested loops</td>
+          <td>100</td>
+          <td>10,000</td>
+          <td>1,000,000</td>
+        </tr>
+        <tr>
+          <td>O(2ⁿ)</td>
+          <td>Exponential</td>
+          <td>Recursive Fibonacci</td>
+          <td>1,024</td>
+          <td>10³⁰</td>
+          <td>10³⁰⁰</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Real-World Examples: O(n) vs O(n²)</h3>
+    <p>Let's compare two approaches to finding duplicate numbers in an array:</p>
+
+    <h4>O(n²) Approach - Nested Loops:</h4>
+    <pre><code class="language-python">def find_duplicates_slow(arr):
+    duplicates = []
+    for i in range(len(arr)):
+        for j in range(i + 1, len(arr)):
+            if arr[i] == arr[j]:
+                duplicates.append(arr[i])
+    return duplicates</code></pre>
+
+    <p><strong>Why O(n²)?</strong> For every element (outer loop), we check every remaining element (inner loop). With 1,000 elements, this means ~500,000 comparisons.</p>
+
+    <h4>O(n) Approach - Hash Set:</h4>
+    <pre><code class="language-python">def find_duplicates_fast(arr):
+    seen = set()
+    duplicates = set()
+    for num in arr:
+        if num in seen:
+            duplicates.add(num)
+        else:
+            seen.add(num)
+    return list(duplicates)</code></pre>
+
+    <p><strong>Why O(n)?</strong> We iterate through the array once, using a hash set for O(1) lookups. With 1,000 elements, this means ~1,000 operations.</p>
+
+    <p><strong>Performance Difference:</strong> On a list of 10,000 elements, the slow version performs ~50 million operations, while the fast version performs ~10,000. That's a 5,000x improvement!</p>
+
+    <h3>How to Optimize Slow Code</h3>
+    <ol>
+      <li><strong>Identify the Problem:</strong> Use Big-O analysis to find O(n²) and worse algorithms</li>
+      <li><strong>Use Appropriate Data Structures:</strong> Hash sets for O(1) lookups, binary search trees for sorted data</li>
+      <li><strong>Reduce Nested Loops:</strong> If possible, eliminate nested iterations</li>
+      <li><strong>Apply Algorithms:</strong> Use sorting algorithms like merge sort O(n log n) instead of bubble sort O(n²)</li>
+      <li><strong>Memoization/Caching:</strong> Store computed results to avoid redundant calculations</li>
+      <li><strong>Divide and Conquer:</strong> Break problems into smaller subproblems</li>
+    </ol>
+
+    <h3>Common Pitfalls to Avoid</h3>
+    <ul>
+      <li>Assuming O(1) operations inside loops (they still contribute to overall complexity)</li>
+      <li>Forgetting about constant factors in real-world performance</li>
+      <li>Not considering space complexity alongside time complexity</li>
+      <li>Premature optimization for cases that won't scale to large inputs</li>
+    </ul>
+  </article>
+
+  <style>
+    .educational-guide {
+      background: #0f3460;
+      border: 1px solid #16213e;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-top: 3rem;
+      color: #ddd;
+    }
+
+    .educational-guide h2 {
+      color: #00d4ff;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .educational-guide h3 {
+      color: #00d4ff;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .educational-guide h4 {
+      color: #888;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .educational-guide p {
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .educational-guide ul, .educational-guide ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .educational-guide li {
+      margin-bottom: 0.75rem;
+    }
+
+    .complexity-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: #16213e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .complexity-table th {
+      background: #00d4ff;
+      color: #000;
+      padding: 1rem;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .complexity-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #1a4d6d;
+    }
+
+    .complexity-table tr:hover {
+      background: #1a4d6d;
+    }
+
+    pre {
+      background: #16213e;
+      border: 1px solid #1a4d6d;
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    code {
+      color: #00d4ff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+  </style>
+</section>

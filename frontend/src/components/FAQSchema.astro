@@ -1,0 +1,50 @@
+---
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I calculate Big-O complexity?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "To calculate Big-O complexity: (1) Identify loops and their nesting levels, (2) Count how many times the innermost operation executes, (3) Drop constants and lower-order terms, (4) Express as a function of input size n. For nested loops, multiply the complexities."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is O(n log n) better than O(n²)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, O(n log n) is significantly better than O(n²). For n=1000, O(n log n) ≈ 10,000 operations while O(n²) = 1,000,000 operations. The difference grows exponentially with input size, making O(n log n) algorithms like merge sort far superior to O(n²) algorithms like bubble sort."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between Big-O and Big-Omega?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Big-O represents the worst-case scenario (upper bound), Big-Omega represents the best-case scenario (lower bound), and Big-Theta represents the average case (tight bound). Big-O is most commonly used in practice because we care about how slow algorithms can get."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I optimize O(n²) code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Try these optimization techniques: (1) Eliminate nested loops by using hash sets for lookups, (2) Use divide-and-conquer algorithms, (3) Apply sorting algorithms like merge sort instead of nested comparisons, (4) Consider data structure changes (trees, hash maps), (5) Use memoization to cache results."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is O(1) constant time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "O(1) means the algorithm takes the same amount of time regardless of input size. Examples include accessing an array element by index, hash table lookups, or simple arithmetic operations. This is the most efficient complexity possible."
+      }
+    }
+  ]
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />

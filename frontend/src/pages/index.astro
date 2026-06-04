@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CodeEditor from '../components/CodeEditor.tsx';
+import ComplexityChart from '../components/ComplexityChart.tsx';
+import ResultsPanel from '../components/ResultsPanel.tsx';
+import EducationalGuide from '../components/EducationalGuide.astro';
+import FAQSchema from '../components/FAQSchema.astro';
+
+const title = "Big-O Complexity Calculator - Code Analysis Tool";
+const description = "Analyze your Python/JavaScript code complexity using AI. Get instant Big-O notation, visualizations, and optimization tips.";
+---
+
+<Layout title={title} description={description}>
+  <FAQSchema />
+  
+  <main class="container">
+    <header class="hero">
+      <h1>Visual Big-O Complexity Calculator</h1>
+      <p class="subtitle">Analyze your code's algorithmic efficiency instantly</p>
+    </header>
+
+    <div class="tool-wrapper">
+      <div class="editor-section">
+        <CodeEditor client:load />
+      </div>
+      
+      <div class="results-section">
+        <ResultsPanel client:load />
+        <ComplexityChart client:load />
+      </div>
+    </div>
+
+    <EducationalGuide />
+  </main>
+
+  <style>
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 3rem 2rem;
+      border-radius: 12px;
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+
+    .tool-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    @media (max-width: 1024px) {
+      .tool-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .editor-section, .results-section {
+      background: #1a1a2e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid #16213e;
+    }
+  </style>
+</Layout>
