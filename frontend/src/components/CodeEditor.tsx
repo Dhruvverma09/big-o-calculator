@@ -10,6 +10,7 @@ interface AnalysisResult {
   explanation: string;
   lines_of_interest: number[];
   optimization_tips: string;
+  space_complexity?: string;
 }
 
 export default function CodeEditor() {
@@ -17,20 +18,54 @@ export default function CodeEditor() {
   const [language, setLanguage] = useState('python');
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleAnalyze = async () => {
     setLoading(true);
+    setErrorMsg('');
+    
+    if (!code.trim()) {
+      setErrorMsg('Please enter some code to analyze');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:5000/api/analyze', {
+      console.log('Sending request to backend...');
+      console.log('Code:', code);
+      console.log('Language:', language);
+      
+      const response = await axios.post('http://127.0.0.1:5000/api/analyze', {
         code,
         language
+      }, {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
+      
+      console.log('Response received:', response.data);
       setAnalysis(response.data);
+      
       // Dispatch custom event for chart update
       window.dispatchEvent(new CustomEvent('analysisComplete', { detail: response.data }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Analysis failed:', error);
-      alert('Error analyzing code. Please try again.');
+      
+      if (error.code === 'ECONNABORTED') {
+        setErrorMsg('Request timeout - Backend took too long to respond');
+      } else if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        setErrorMsg('Network error - Is the backend running on http://127.0.0.1:5000?');
+      } else if (error.response) {
+        setErrorMsg(`Backend error: ${error.response.status} - ${error.response.data?.error || error.response.statusText}`);
+      } else if (error.request) {
+        setErrorMsg('No response from backend - Check if it\'s running');
+      } else {
+        setErrorMsg(`Error: ${error.message}`);
+      }
+      
+      console.error('Full error:', error);
     } finally {
       setLoading(false);
     }
@@ -68,6 +103,12 @@ export default function CodeEditor() {
       >
         {loading ? 'Analyzing...' : 'Analyze Complexity'}
       </button>
+
+      {errorMsg && (
+        <div className="error-message">
+          <strong>⚠️ Error:</strong> {errorMsg}
+        </div>
+      )}
 
       {analysis && (
         <div className="quick-result">
@@ -140,6 +181,15 @@ export default function CodeEditor() {
         .analyze-btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+        }
+
+        .error-message {
+          padding: 1rem;
+          background: #6b3030;
+          border: 1px solid #c41e3a;
+          border-radius: 6px;
+          color: #ffcccc;
+          font-size: 0.9rem;
         }
 
         .quick-result {
